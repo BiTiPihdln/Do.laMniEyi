@@ -112,8 +112,8 @@ async function gem(contents,system,retry=1){
   const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${cfg.model}:generateContent`,{
     method:'POST',
     headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
-    body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents}),
-    signal:AbortSignal.timeout(30000)
+    body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents,...(/^gemini-3/.test(cfg.model)?{generationConfig:{thinkingConfig:{thinkingLevel:'low'}}}:{})}),
+    signal:AbortSignal.timeout(60000)
   });
   const j=await r.json();
   if((r.status===503||r.status===429)&&retry){await new Promise(s=>setTimeout(s,2500));return gem(contents,system,retry-1)}
